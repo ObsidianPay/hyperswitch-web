@@ -59,6 +59,17 @@ let make = (
 
     let localSelectorString = "hyper-preMountLoader-iframe"
     let mountPreMountLoaderIframe = () => {
+      // obsidian: a pre-mount loader still on the page belongs to an earlier elements() call and
+      // fetched that call's payment (its client secret). Reusing it left this payment's requests
+      // unanswered once it had stopped listening, and the element stayed on its loading
+      // placeholders. Replace it with one for this payment.
+      [`#orca-element-${localSelectorString}`, `#orca-payment-element-iframeRef-${localSelectorString}`]
+      ->Array.forEach(selector =>
+        switch Window.querySelector(selector)->Nullable.toOption {
+        | Some(stale) => stale->remove
+        | None => ()
+        }
+      )
       if (
         Window.querySelector(
           `#orca-payment-element-iframeRef-${localSelectorString}`,
