@@ -435,6 +435,13 @@ let paymentMethodsFields = [
     miniIcon: None,
   },
   {
+    paymentMethodName: "local_bank_redirect",
+    icon: Some(icon("obsidian", ~size=19)),
+    displayName: "Pay with Obsidian", // obsidian
+    fields: [InfoElement],
+    miniIcon: None,
+  },
+  {
     paymentMethodName: "classic",
     icon: Some(icon("cashtocode", ~size=50)),
     displayName: "Cash / Voucher",

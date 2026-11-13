@@ -41,11 +41,11 @@ const backendEndPoint =
 const confirmEndPoint =
   envBackendUrl ||
   `https://${sdkEnv === "prod" ? "api" : "sandbox"}.hyperswitch.io`;
-const logEndpoint =
-  envLoggingUrl ||
-  `https://${sdkEnv === "prod" ? "api" : "sandbox"}.hyperswitch.io/logs/sdk`;
+// obsidian: logs go only to our own ENV_LOGGING_URL; without one, logging is off (upstream sent
+// them to the Hyperswitch-hosted log service).
+const logEndpoint = envLoggingUrl;
 
-const enableLogging = true;
+const enableLogging = envLoggingUrl !== "";
 const loggingLevel = "DEBUG";
 const maxLogsPushedPerEventName = 100;
 

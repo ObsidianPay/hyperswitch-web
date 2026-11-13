@@ -8,13 +8,12 @@ let setApiEndPoint = str => {
   apiEndPoint := Some(str)
 }
 
-let getApiEndPoint = (~publishableKey="", ~isConfirmCall=false, ()) => {
-  let testMode = publishableKey->String.startsWith("pk_snd_")
+// obsidian: always our own backend. Upstream sent test-key (pk_snd_) calls from a prod build to
+// the Hyperswitch-hosted sandbox; a self-hosted gateway must never send shopper data there.
+let getApiEndPoint = (~publishableKey as _="", ~isConfirmCall=false, ()) => {
   switch apiEndPoint.contents {
   | Some(str) => str
-  | None =>
-    let backendEndPoint = isConfirmCall ? GlobalVars.confirmEndPoint : GlobalVars.backendEndPoint
-    GlobalVars.isProd && testMode ? "https://beta.hyperswitch.io/api" : backendEndPoint
+  | None => isConfirmCall ? GlobalVars.confirmEndPoint : GlobalVars.backendEndPoint
   }
 }
 
