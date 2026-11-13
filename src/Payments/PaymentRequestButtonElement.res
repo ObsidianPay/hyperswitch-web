@@ -37,16 +37,12 @@ module WalletsSaveDetailsText = {
 }
 
 @react.component
-let make = (~sessions, ~walletOptions, ~paymentType) => {
+let make = (~sessions, ~walletOptions) => {
   open SessionsType
   let dict = sessions->Utils.getDictFromJson
   let paymentMethodListValue = Recoil.useRecoilValueFromAtom(PaymentUtils.paymentMethodListValue)
 
   let sessionObj = React.useMemo(() => itemToObjMapper(dict, Others), [dict])
-  let paypalToken = React.useMemo(
-    () => getPaymentSessionObj(sessionObj.sessionsToken, Paypal),
-    [sessionObj],
-  )
   let gPayToken = getPaymentSessionObj(sessionObj.sessionsToken, Gpay)
   let applePaySessionObj = itemToObjMapper(dict, ApplePayObject)
   let applePayToken = getPaymentSessionObj(applePaySessionObj.sessionsToken, ApplePay)
@@ -56,8 +52,6 @@ let make = (~sessions, ~walletOptions, ~paymentType) => {
     googlePayThirdPartySessionObj.sessionsToken,
     Gpay,
   )
-
-  let klarnaTokenObj = SessionsType.getPaymentSessionObj(sessionObj.sessionsToken, Klarna)
 
   let {clientSecret} = Recoil.useRecoilValueFromAtom(RecoilAtoms.keys)
 
@@ -85,32 +79,19 @@ let make = (~sessions, ~walletOptions, ~paymentType) => {
                 }}
               </SessionPaymentWrapper>
             | PaypalWallet =>
+              // obsidian: always the redirect button; PayPal's JS SDK (used with a PayPal or Braintree
+              // connector session) was removed with the connectors.
               <SessionPaymentWrapper type_={Wallet}>
-                {switch paypalToken {
-                | OtherTokenOptional(optToken) =>
-                  switch optToken {
-                  | Some(token) => <PaypalSDKLazy sessionObj=token paymentType />
-                  | None => <PayPalLazy />
-                  }
-                | _ => <PayPalLazy />
-                }}
+                <PayPalLazy />
               </SessionPaymentWrapper>
             | ApplePayWallet =>
               switch applePayToken {
               | ApplePayTokenOptional(optToken) => <ApplePayLazy sessionObj=optToken />
               | _ => React.null
               }
-            | KlarnaWallet =>
-              <SessionPaymentWrapper type_=Others>
-                {switch klarnaTokenObj {
-                | OtherTokenOptional(optToken) =>
-                  switch optToken {
-                  | Some(token) => <KlarnaSDKLazy sessionObj=token />
-                  | None => React.null
-                  }
-                | _ => React.null
-                }}
-              </SessionPaymentWrapper>
+            // obsidian: the Klarna button was Klarna's JS SDK on a Klarna connector session; removed
+            // with the connector.
+            | KlarnaWallet => React.null
 
             | NONE => React.null
             }

@@ -55,16 +55,7 @@ let preloader = () => {
     ~href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Qwitcher+Grypen:wght@400;700&display=swap",
     (),
   )
-  preloadFile(
-    ~type_="script",
-    ~href="https://js.braintreegateway.com/web/3.88.4/js/paypal-checkout.min.js",
-    (),
-  )
-  preloadFile(
-    ~type_="script",
-    ~href="https://js.braintreegateway.com/web/3.88.4/js/client.min.js",
-    (),
-  )
+  // obsidian: upstream also preloaded Braintree's PayPal scripts here; removed with the connector.
 }
 
 let make = (publishableKey, options: option<JSON.t>, analyticsInfo: option<JSON.t>) => {
@@ -177,32 +168,11 @@ let make = (publishableKey, options: option<JSON.t>, analyticsInfo: option<JSON.
             manageErrorWarning(INVALID_PK, (), ~logger)
           }
 
-          if (
-            Window.querySelectorAll(`script[src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"]`)->Array.length === 0
-          ) {
-            let scriptURL = "https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"
-            let script = Window.createElement("script")
-            script->Window.elementSrc(scriptURL)
-            script->Window.elementOnerror(err => {
-              Console.log2("ERROR DURING LOADING APPLE PAY", err)
-            })
-            Window.body->Window.appendChild(script)
-          }
+          // obsidian: no Apple Pay script; Obsidian is the only connector and takes no wallets.
         }
       }->Sentry.sentryLogger
 
-      if (
-        Window.querySelectorAll(`script[src="https://pay.google.com/gp/p/js/pay.js"]`)->Array.length === 0
-      ) {
-        let googlePayScriptURL = "https://pay.google.com/gp/p/js/pay.js"
-        let googlePayScript = Window.createElement("script")
-        googlePayScript->Window.elementSrc(googlePayScriptURL)
-        googlePayScript->Window.elementOnerror(err => {
-          Utils.logInfo(Console.log2("ERROR DURING LOADING GOOGLE PAY SCRIPT", err))
-        })
-        Window.body->Window.appendChild(googlePayScript)
-        logger.setLogInfo(~value="GooglePay Script Loaded", ~eventName=GOOGLE_PAY_SCRIPT, ())
-      }
+      // obsidian: no Google Pay script preload (no connector takes wallets).
 
       let iframeRef = ref([])
       let clientSecret = ref("")

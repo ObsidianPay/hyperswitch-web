@@ -5,7 +5,6 @@ open PaymentModeType
 @react.component
 let make = (~paymentType: CardThemeType.mode) => {
   let {themeObj} = Recoil.useRecoilValueFromAtom(configAtom)
-  let {displaySavedPaymentMethods} = Recoil.useRecoilValueFromAtom(optionAtom)
   let isManualRetryEnabled = Recoil.useRecoilValueFromAtom(isManualRetryEnabled)
 
   let loggerState = Recoil.useRecoilValueFromAtom(loggerAtom)
@@ -29,15 +28,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   let (postalCode, _) = Recoil.useLoggedRecoilState(userAddressPincode, "postal_code", loggerState)
   let (state, _) = Recoil.useLoggedRecoilState(userAddressState, "state", loggerState)
   let paymentMethodListValue = Recoil.useRecoilValueFromAtom(PaymentUtils.paymentMethodListValue)
-
-  let pmAuthMapper = React.useMemo1(
-    () =>
-      PmAuthConnectorUtils.findPmAuthAllPMAuthConnectors(paymentMethodListValue.payment_methods),
-    [paymentMethodListValue.payment_methods],
-  )
-
-  let isVerifyPMAuthConnectorConfigured =
-    displaySavedPaymentMethods && pmAuthMapper->Dict.get("ach")->Option.isSome
 
   OutsideClick.useOutsideClick(
     ~refs=ArrayOfRef([toolTipRef]),
@@ -105,10 +95,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   useSubmitPaymentData(submitCallback)
 
   <>
-    <RenderIf condition={isVerifyPMAuthConnectorConfigured}>
-      <AddBankDetails paymentMethodType="ach" />
-    </RenderIf>
-    <RenderIf condition={!isVerifyPMAuthConnectorConfigured}>
       <div className="flex flex-col animate-slowShow" style={gridGap: themeObj.spacingGridColumn}>
         <FullNamePaymentInput paymentType={paymentType} />
         <EmailPaymentInput paymentType />
@@ -133,7 +119,6 @@ let make = (~paymentType: CardThemeType.mode) => {
           <BankDebitModal setModalData />
         </FullScreenPortal>
       </div>
-    </RenderIf>
   </>
 }
 

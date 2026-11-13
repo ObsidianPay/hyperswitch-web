@@ -25,7 +25,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   let loggerState = Recoil.useRecoilValueFromAtom(loggerAtom)
   let isManualRetryEnabled = Recoil.useRecoilValueFromAtom(RecoilAtoms.isManualRetryEnabled)
   let {config, themeObj, localeString} = Recoil.useRecoilValueFromAtom(configAtom)
-  let {displaySavedPaymentMethods} = Recoil.useRecoilValueFromAtom(optionAtom)
 
   let intent = PaymentHelpers.usePaymentIntent(Some(loggerState), BankDebits)
   let (email, _) = Recoil.useLoggedRecoilState(userEmailAddress, "email", loggerState)
@@ -39,21 +38,11 @@ let make = (~paymentType: CardThemeType.mode) => {
   let setComplete = Recoil.useSetRecoilState(fieldsComplete)
   let (sortcode, setSortcode) = React.useState(_ => "")
   let (accountNumber, setAccountNumber) = React.useState(_ => "")
-  let paymentMethodListValue = Recoil.useRecoilValueFromAtom(PaymentUtils.paymentMethodListValue)
 
   let (sortCodeError, setSortCodeError) = React.useState(_ => "")
 
   let sortCodeRef = React.useRef(Nullable.null)
   let accNumRef = React.useRef(Nullable.null)
-
-  let pmAuthMapper = React.useMemo1(
-    () =>
-      PmAuthConnectorUtils.findPmAuthAllPMAuthConnectors(paymentMethodListValue.payment_methods),
-    [paymentMethodListValue.payment_methods],
-  )
-
-  let isVerifyPMAuthConnectorConfigured =
-    displaySavedPaymentMethods && pmAuthMapper->Dict.get("sepa")->Option.isSome
 
   let complete =
     email.value != "" &&
@@ -132,10 +121,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   }
 
   <>
-    <RenderIf condition={isVerifyPMAuthConnectorConfigured}>
-      <AddBankDetails paymentMethodType="bacs" />
-    </RenderIf>
-    <RenderIf condition={!isVerifyPMAuthConnectorConfigured}>
       <div className="flex flex-col animate-slowShow" style={gridGap: themeObj.spacingGridColumn}>
         <div className="flex flex-row" style={gridGap: themeObj.spacingGridRow}>
           <PaymentInputField
@@ -168,7 +153,6 @@ let make = (~paymentType: CardThemeType.mode) => {
         <AddressPaymentInput paymentType />
         <Surcharge paymentMethod="bank_debit" paymentMethodType="bacs" />
       </div>
-    </RenderIf>
   </>
 }
 

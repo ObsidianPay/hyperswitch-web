@@ -11,7 +11,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   let intent = PaymentHelpers.usePaymentIntent(Some(loggerState), BankDebits)
 
   let {themeObj} = Recoil.useRecoilValueFromAtom(configAtom)
-  let {displaySavedPaymentMethods} = Recoil.useRecoilValueFromAtom(optionAtom)
 
   let (modalData, setModalData) = React.useState(_ => None)
 
@@ -24,16 +23,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   let (postalCode, _) = Recoil.useLoggedRecoilState(userAddressPincode, "postal_code", loggerState)
   let (state, _) = Recoil.useLoggedRecoilState(userAddressState, "state", loggerState)
   let setComplete = Recoil.useSetRecoilState(fieldsComplete)
-  let paymentMethodListValue = Recoil.useRecoilValueFromAtom(PaymentUtils.paymentMethodListValue)
-
-  let pmAuthMapper = React.useMemo1(
-    () =>
-      PmAuthConnectorUtils.findPmAuthAllPMAuthConnectors(paymentMethodListValue.payment_methods),
-    [paymentMethodListValue.payment_methods],
-  )
-
-  let isVerifyPMAuthConnectorConfigured =
-    displaySavedPaymentMethods && pmAuthMapper->Dict.get("sepa")->Option.isSome
 
   let complete =
     email.value != "" &&
@@ -95,10 +84,6 @@ let make = (~paymentType: CardThemeType.mode) => {
   }, (email, fullName, modalData, isManualRetryEnabled))
   useSubmitPaymentData(submitCallback)
   <>
-    <RenderIf condition={isVerifyPMAuthConnectorConfigured}>
-      <AddBankDetails paymentMethodType="sepa" />
-    </RenderIf>
-    <RenderIf condition={!isVerifyPMAuthConnectorConfigured}>
       <div
         className="flex flex-col animate-slowShow"
         style={
@@ -113,7 +98,6 @@ let make = (~paymentType: CardThemeType.mode) => {
         <Surcharge paymentMethod="bank_debit" paymentMethodType="sepa" />
         <Terms mode=SepaBankDebit />
       </div>
-    </RenderIf>
   </>
 }
 

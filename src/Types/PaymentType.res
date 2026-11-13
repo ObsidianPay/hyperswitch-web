@@ -304,7 +304,9 @@ let defaultOptions = {
   wallets: defaultWallets,
   payButtonStyle: defaultStyle,
   customMethodNames: [],
-  showCardFormByDefault: true,
+  // obsidian: off by default; Obsidian takes no cards, so a card form shown before the method
+  // list loads collects details that cannot be paid. A merchant can still turn it on.
+  showCardFormByDefault: false,
   billingAddress: defaultBillingAddress,
   sdkHandleConfirmPayment: defaultSdkHandleConfirmPayment,
   hideExpiredPaymentMethods: false,
@@ -1043,7 +1045,7 @@ let itemToObjMapper = (dict, logger) => {
     wallets: getWallets(dict, "wallets", logger),
     customMethodNames: getCustomMethodNames(dict, "customMethodNames"),
     payButtonStyle: getStyle(dict, "payButtonStyle", logger),
-    showCardFormByDefault: getBool(dict, "showCardFormByDefault", true),
+    showCardFormByDefault: getBool(dict, "showCardFormByDefault", false),
     billingAddress: getBillingAddress(dict, "billingAddress", logger),
     sdkHandleConfirmPayment: dict
     ->getDictFromDict("sdkHandleConfirmPayment")

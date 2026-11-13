@@ -1,0 +1,6 @@
+# obsidian: build from sources only (the image runs npm install and the ReScript build itself)
+node_modules/
+dist/
+lib/
+**/*.bs.js
+.git/
